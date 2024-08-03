@@ -3,3 +3,44 @@
   padding: 0;
   margin: 0;
 }
+
+.inventory-item {
+  position: relative; /* Ensure the buttons are positioned correctly */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth background color and scale transition */
+  padding: 10px; /* Adjust padding as needed */
+}
+
+.inventory-item:hover {
+  background-color: #e0e0e0; /* Background color change on hover */
+  transform: scale(1.02); /* Slightly scale up the item on hover */
+}
+
+.item-buttons {
+  display: flex;
+  gap: 10px; /* Space between buttons */
+  position: absolute; /* Position buttons over the item */
+  right: 10px; /* Adjust the position as needed */
+  top: 10px; /* Adjust the position as needed */
+  opacity: 0; /* Hide buttons initially */
+  transform: translateY(-10px); /* Initially position buttons slightly above */
+  transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth opacity and transform transition */
+}
+
+.inventory-item:hover .item-buttons {
+  opacity: 1; /* Show buttons on hover */
+  transform: translateY(0); /* Slide buttons into view */
+}
+
+.item-buttons button {
+  border-radius: 50%; /* Make buttons round */
+  padding: 5px 10px; /* Adjust padding to make buttons compact */
+  min-width: 30px; /* Ensure buttons are not too small */
+  min-height: 30px; /* Ensure buttons are not too small */
+  font-size: 16px; /* Adjust font size as needed */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth background color and scale transition */
+}
+
+.item-buttons button:hover {
+  background-color: #ddd; /* Change background color on hover */
+  transform: scale(1.1); /* Slightly scale up button on hover */
+}

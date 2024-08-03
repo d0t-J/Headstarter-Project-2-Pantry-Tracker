@@ -206,7 +206,7 @@ export default function Home() {
     setFilterByCategory(e.target.checked);
     filterInventory(filterInput, filterByName, e.target.checked);
   };
-
+  
   return (
     <Box
       width="100vw"
@@ -217,7 +217,7 @@ export default function Home() {
       alignItems="center"
       gap={2}
     >
-      {/*  Manage Inventory Dialog Box  */}
+      {/* Manage Inventory Dialog Box */}
       <Modal open={open} onClose={handleClose}>
         <Box
           component="form"
@@ -254,7 +254,7 @@ export default function Home() {
               <MenuItem value="delete">Remove Item</MenuItem>
             </Select>
           </FormControl>
-
+  
           {modalType === "new" && (
             <>
               <TextField
@@ -281,7 +281,7 @@ export default function Home() {
               />
             </>
           )}
-
+  
           {modalType === "update" && (
             <>
               <TextField
@@ -301,7 +301,7 @@ export default function Home() {
               />
             </>
           )}
-
+  
           {modalType === "delete" && (
             <>
               <TextField
@@ -330,22 +330,22 @@ export default function Home() {
           </Button>
         </Box>
       </Modal>
-
+      
+      {/* Mange and Reset Btns */}
       <Stack direction="row" spacing={2}>
         <Button variant="contained" onClick={handleOpen}>
-          Manage
+          Manage Inventory
         </Button>
         <Button
           variant="contained"
           color="error"
           onClick={handleResetConfirmOpen}
         >
-          Reset
+          Reset Inventory
         </Button>
       </Stack>
-
+  
       {/* [Filter Box] */}
-
       <Box
         width="800px"
         display="flex"
@@ -371,7 +371,7 @@ export default function Home() {
               onChange={handleFilterByNameChange}
             />
           }
-          label="Name"
+          label="Filter by Name"
         />
         <FormControlLabel
           control={
@@ -380,54 +380,74 @@ export default function Home() {
               onChange={handleFilterByCategoryChange}
             />
           }
-          label="Category"
+          label="Filter by Category"
         />
       </Box>
+  
       {/* Inventory List: Items are displayed */}
-      <Box border="1px solid #333" borderRadius="15px">
+      <Box border="1px solid #333" borderRadius="15px" width="800px">
         <Box
-          width="800px"
-          height="100px"
-          bgcolor="#8250FF"
           display="flex"
+          justifyContent="space-between"
           alignItems="center"
-          justifyContent="center"
-          borderRadius="15px"
+          bgcolor="#ADD8E6"
+          padding={2}
+          borderBottom="1px solid #333"
         >
-          <Typography variant="h2" color="#fff">
-            Inventory
+          <Typography variant="h6" color="#333" width="33%">
+            Name
+          </Typography>
+          <Typography variant="h6" color="#333" width="33%">
+            Category
+          </Typography>
+          <Typography variant="h6" color="#333" width="33%">
+            Qty.
           </Typography>
         </Box>
+  
         <Stack width="800px" height="300px" spacing={2} overflow="auto">
           {filteredInventory.map(({ name, quantity, category }) => (
-            
             <Box
               key={name}
+              className="inventory-item"
               width="100%"
-              minHeight="150px"
+              minHeight="50px"
               display="flex"
               alignItems="center"
               justifyContent="space-between"
               bgcolor="#f0f0f0"
-              padding={5}
+              padding={2}
+              sx={{
+                "&:hover": {
+                  bgcolor: "#e0e0e0",
+                  ".item-buttons": {
+                    display: "flex",
+                  },
+                },
+              }}
             >
-              <Typography variant="h3" color="#333" textAlign="center">
+              <Typography variant="h6" color="#333" width="33%">
                 {name.charAt(0).toUpperCase() + name.slice(1)}
               </Typography>
-              <Typography variant="h3" color="#333" textAlign="center">
+              <Typography variant="h6" color="#333" width="33%">
                 {category}
               </Typography>
-              <Typography variant="h3" color="#333" textAlign="center">
+              <Typography variant="h6" color="#333" width="33%">
                 {quantity}
               </Typography>
-              <Stack direction="row" spacing={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+                className="item-buttons"
+                sx={{ display: "none" }}
+              >
                 <Button
                   variant="contained"
                   onClick={() => {
                     removeItem(name);
                   }}
                 >
-                  Remove
+                  -
                 </Button>
                 <Button
                   variant="contained"
@@ -435,20 +455,21 @@ export default function Home() {
                     addItem(name, category);
                   }}
                 >
-                  Add
+                  +
                 </Button>
               </Stack>
             </Box>
           ))}
         </Stack>
       </Box>
+  
       {/* Prompt Dialog */}
       <Dialog open={promptOpen} onClose={handlePromptClose}>
         <DialogTitle>Item Not Found</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            The item "{promptItem.name}" was not found in the inventory. Would
-            you like to add it?
+            The item "{promptItem.name}" was not found in the inventory. Would you
+            like to add it?
           </DialogContentText>
           <TextField
             label="Category"
@@ -470,6 +491,7 @@ export default function Home() {
           </Button>
         </DialogActions>
       </Dialog>
+  
       {/* Reset Confirmation Dialog */}
       <Dialog open={resetConfirmOpen} onClose={handleResetConfirmClose}>
         <DialogTitle>Reset Inventory</DialogTitle>
@@ -490,4 +512,5 @@ export default function Home() {
       </Dialog>
     </Box>
   );
+  
 }
