@@ -49,7 +49,7 @@ export default function Home() {
   const [filterInput, setFilterInput] = useState("");
   const [filterByName, setFilterByName] = useState(true);
   const [filterByCategory, setFilterByCategory] = useState(false);
-  const [filteredInventory, setFitleredInventory] = useState([]);
+  const [filteredInventory, setFilteredInventory] = useState([]);
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -63,7 +63,7 @@ export default function Home() {
       });
     });
     setInventory(inventoryList);
-    setFitleredInventory(inventoryList);
+    setFilteredInventory(inventoryList);
   };
 
   const removeItem = async (item, quantityToRemove = 1) => {
@@ -189,7 +189,7 @@ export default function Home() {
         return matchName || matchCategory;
       });
     }
-    setFitleredInventory(filteredList);
+    setFilteredInventory(filteredList);
   };
 
   const handleFilterChange = (e) => {
@@ -330,16 +330,17 @@ export default function Home() {
           </Button>
         </Box>
       </Modal>
+
       <Stack direction="row" spacing={2}>
         <Button variant="contained" onClick={handleOpen}>
-          Manage Inventory
+          Manage
         </Button>
         <Button
           variant="contained"
           color="error"
           onClick={handleResetConfirmOpen}
         >
-          Reset Inventory
+          Reset
         </Button>
       </Stack>
 
@@ -370,7 +371,7 @@ export default function Home() {
               onChange={handleFilterByNameChange}
             />
           }
-          label="Filter by Name"
+          label="Name"
         />
         <FormControlLabel
           control={
@@ -379,7 +380,7 @@ export default function Home() {
               onChange={handleFilterByCategoryChange}
             />
           }
-          label="Filter by Category"
+          label="Category"
         />
       </Box>
       {/* Inventory List: Items are displayed */}
@@ -387,18 +388,19 @@ export default function Home() {
         <Box
           width="800px"
           height="100px"
-          bgcolor="#ADD8E6"
+          bgcolor="#8250FF"
           display="flex"
           alignItems="center"
           justifyContent="center"
           borderRadius="15px"
         >
-          <Typography variant="h2" color="#333">
-            Inventory Items
+          <Typography variant="h2" color="#fff">
+            Inventory
           </Typography>
         </Box>
         <Stack width="800px" height="300px" spacing={2} overflow="auto">
-          {inventory.map(({ name, quantity, category }) => (
+          {filteredInventory.map(({ name, quantity, category }) => (
+            
             <Box
               key={name}
               width="100%"
@@ -413,10 +415,10 @@ export default function Home() {
                 {name.charAt(0).toUpperCase() + name.slice(1)}
               </Typography>
               <Typography variant="h3" color="#333" textAlign="center">
-                {quantity}
+                {category}
               </Typography>
               <Typography variant="h3" color="#333" textAlign="center">
-                {category}
+                {quantity}
               </Typography>
               <Stack direction="row" spacing={2}>
                 <Button
