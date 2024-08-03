@@ -18,6 +18,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import {
   collection,
@@ -45,8 +47,9 @@ export default function Home() {
   });
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const [filterInput, setFilterInput] = useState("");
-  const [filterType, setFilterType] = useState("name");
-  const [quantityRange, setQuantityRange] = useState([0, 1000]);
+  const [filterByName, setFilterByName] = useState(true);
+  const [filterByCategory, setFilterByCategory] = useState(false);
+  const [filteredInventory, setFitleredInventory] = useState([]);
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -60,6 +63,7 @@ export default function Home() {
       });
     });
     setInventory(inventoryList);
+    setFitleredInventory(inventoryList);
   };
 
   const removeItem = async (item, quantityToRemove = 1) => {
@@ -171,6 +175,36 @@ export default function Home() {
       await removeItem(itemName, itemQuantity);
     }
     handleClose();
+  };
+
+  const filterInventory = (input, byName, byCategory) => {
+    let filteredList = inventory;
+    if (input) {
+      filteredList = inventory.filter((item) => {
+        const matchName =
+          byName && item.name.toLowerCase().includes(input.toLowerCase());
+        const matchCategory =
+          byCategory &&
+          item.category.toLowerCase().includes(input.toLowerCase());
+        return matchName || matchCategory;
+      });
+    }
+    setFitleredInventory(filteredList);
+  };
+
+  const handleFilterChange = (e) => {
+    setFilterInput(e.target.value);
+    filterInventory(e.target.value, filterByName, filterByCategory);
+  };
+
+  const handleFilterByNameChange = (e) => {
+    setFilterByName(e.target.checked);
+    filterInventory(filterInput, e.target.checked, filterByCategory);
+  };
+
+  const handleFilterByCategoryChange = (e) => {
+    setFilterByCategory(e.target.checked);
+    filterInventory(filterInput, filterByName, e.target.checked);
   };
 
   return (
@@ -308,6 +342,46 @@ export default function Home() {
           Reset Inventory
         </Button>
       </Stack>
+
+      {/* [Filter Box] */}
+
+      <Box
+        width="800px"
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mt={2}
+        mb={2}
+      >
+        <TextField
+          label="Search"
+          variant="outlined"
+          fullWidth
+          value={filterInput}
+          onChange={handleFilterChange}
+          sx={{
+            mr: 2,
+          }}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={filterByName}
+              onChange={handleFilterByNameChange}
+            />
+          }
+          label="Filter by Name"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={filterByCategory}
+              onChange={handleFilterByCategoryChange}
+            />
+          }
+          label="Filter by Category"
+        />
+      </Box>
       {/* Inventory List: Items are displayed */}
       <Box border="1px solid #333" borderRadius="15px">
         <Box
