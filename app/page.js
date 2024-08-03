@@ -1,5 +1,4 @@
-"use client";
-import Image from "next/image";
+"use client"
 import { useState, useEffect } from "react";
 import { firestore } from "@/firebase";
 import {
@@ -19,7 +18,7 @@ import {
   DialogContentText,
   DialogTitle,
   FormControlLabel,
-  Checkbox,
+  Checkbox
 } from "@mui/material";
 import {
   collection,
@@ -31,25 +30,53 @@ import {
   deleteDoc,
   writeBatch,
 } from "firebase/firestore";
+import { styled } from "@mui/material/styles";
+
+const InventoryBox = styled(Box)(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: "10px",
+  boxShadow: theme.shadows[3],
+  width: "800px",
+  margin: theme.spacing(2, 0),
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.background.paper,
+}));
+
+const InventoryItem = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  backgroundColor: theme.palette.grey[100],
+  padding: theme.spacing(2),
+  margin: theme.spacing(1, 0),
+  borderRadius: "5px",
+  transition: "background-color 0.3s",
+  "&:hover": {
+    backgroundColor: theme.palette.grey[200],
+  },
+  "& .item-buttons": {
+    display: "none",
+  },
+  "&:hover .item-buttons": {
+    display: "flex",
+  },
+}));
 
 export default function Home() {
   const [inventory, setInventory] = useState([]);
+  const [filteredInventory, setFilteredInventory] = useState([]);
   const [open, setOpen] = useState(false);
   const [itemName, setItemName] = useState("");
   const [itemQuantity, setItemQuantity] = useState(1);
   const [itemCategory, setItemCategory] = useState("");
   const [modalType, setModalType] = useState("new");
+  const [filterCategory, setFilterCategory] = useState("");
   const [promptOpen, setPromptOpen] = useState(false);
-  const [promptItem, setPromptItem] = useState({
-    name: "",
-    category: "",
-    quantity: 1,
-  });
+  const [promptItem, setPromptItem] = useState({ name: "", category: "", quantity: 1 });
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const [filterInput, setFilterInput] = useState("");
-  const [filterByName, setFilterByName] = useState(true);
+  const [filterByName, setFilterByName] = useState(false);
   const [filterByCategory, setFilterByCategory] = useState(false);
-  const [filteredInventory, setFilteredInventory] = useState([]);
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -63,7 +90,30 @@ export default function Home() {
       });
     });
     setInventory(inventoryList);
-    setFilteredInventory(inventoryList);
+    filterInventory(filterCategory, inventoryList);
+  };
+
+  const filterInventory = (category, inventoryList) => {
+    let filteredList = inventoryList;
+    if (category) {
+      filteredList = filteredList.filter((item) =>
+        item.category.toLowerCase().includes(category.toLowerCase())
+      );
+    }
+    setFilteredInventory(filteredList);
+  };
+
+  const handleFilterChange = (e) => {
+    setFilterInput(e.target.value);
+    filterInventory(e.target.value, inventory);
+  };
+
+  const handleFilterByNameChange = (e) => {
+    setFilterByName(e.target.checked);
+  };
+
+  const handleFilterByCategoryChange = (e) => {
+    setFilterByCategory(e.target.checked);
   };
 
   const removeItem = async (item, quantityToRemove = 1) => {
@@ -75,10 +125,7 @@ export default function Home() {
       if (quantity <= quantityToRemove) {
         await deleteDoc(docRef);
       } else {
-        await setDoc(docRef, {
-          category,
-          quantity: quantity - quantityToRemove,
-        });
+        await setDoc(docRef, { category, quantity: quantity - quantityToRemove });
       }
     }
     await updateInventory();
@@ -89,12 +136,8 @@ export default function Home() {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      const { quantity: existingQuantity, category: existingCategory } =
-        docSnap.data();
-      await setDoc(docRef, {
-        category: existingCategory,
-        quantity: existingQuantity + quantity,
-      });
+      const { quantity: existingQuantity, category: existingCategory } = docSnap.data();
+      await setDoc(docRef, { category: existingCategory, quantity: existingQuantity + quantity });
     } else {
       await setDoc(docRef, { category, quantity });
     }
@@ -125,7 +168,7 @@ export default function Home() {
     setItemName("");
     setItemQuantity(1);
     setItemCategory("");
-    setModalType("new"); // Reset modal type to default
+    setModalType("new");
   };
 
   const handlePromptClose = () => {
@@ -156,19 +199,11 @@ export default function Home() {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        const { quantity: existingQuantity, category: existingCategory } =
-          docSnap.data();
-        await setDoc(docRef, {
-          category: existingCategory,
-          quantity: existingQuantity + itemQuantity,
-        });
+        const { quantity: existingQuantity, category: existingCategory } = docSnap.data();
+        await setDoc(docRef, { category: existingCategory, quantity: existingQuantity + itemQuantity });
         await updateInventory();
       } else {
-        setPromptItem({
-          name: itemName,
-          category: itemCategory,
-          quantity: itemQuantity,
-        });
+        setPromptItem({ name: itemName, category: itemCategory, quantity: itemQuantity });
         setPromptOpen(true);
       }
     } else if (modalType === "delete") {
@@ -177,36 +212,6 @@ export default function Home() {
     handleClose();
   };
 
-  const filterInventory = (input, byName, byCategory) => {
-    let filteredList = inventory;
-    if (input) {
-      filteredList = inventory.filter((item) => {
-        const matchName =
-          byName && item.name.toLowerCase().includes(input.toLowerCase());
-        const matchCategory =
-          byCategory &&
-          item.category.toLowerCase().includes(input.toLowerCase());
-        return matchName || matchCategory;
-      });
-    }
-    setFilteredInventory(filteredList);
-  };
-
-  const handleFilterChange = (e) => {
-    setFilterInput(e.target.value);
-    filterInventory(e.target.value, filterByName, filterByCategory);
-  };
-
-  const handleFilterByNameChange = (e) => {
-    setFilterByName(e.target.checked);
-    filterInventory(filterInput, e.target.checked, filterByCategory);
-  };
-
-  const handleFilterByCategoryChange = (e) => {
-    setFilterByCategory(e.target.checked);
-    filterInventory(filterInput, filterByName, e.target.checked);
-  };
-  
   return (
     <Box
       width="100vw"
@@ -254,7 +259,7 @@ export default function Home() {
               <MenuItem value="delete">Remove Item</MenuItem>
             </Select>
           </FormControl>
-  
+
           {modalType === "new" && (
             <>
               <TextField
@@ -281,7 +286,7 @@ export default function Home() {
               />
             </>
           )}
-  
+
           {modalType === "update" && (
             <>
               <TextField
@@ -301,7 +306,7 @@ export default function Home() {
               />
             </>
           )}
-  
+
           {modalType === "delete" && (
             <>
               <TextField
@@ -331,7 +336,7 @@ export default function Home() {
         </Box>
       </Modal>
       
-      {/* Mange and Reset Btns */}
+      {/* Manage and Reset Btns */}
       <Stack direction="row" spacing={2}>
         <Button variant="contained" onClick={handleOpen}>
           Manage Inventory
@@ -344,8 +349,8 @@ export default function Home() {
           Reset Inventory
         </Button>
       </Stack>
-  
-      {/* [Filter Box] */}
+
+      {/* Filter Box */}
       <Box
         width="800px"
         display="flex"
@@ -383,66 +388,45 @@ export default function Home() {
           label="Filter by Category"
         />
       </Box>
-  
+
       {/* Inventory List: Items are displayed */}
-      <Box border="1px solid #333" borderRadius="15px" width="800px">
+      <InventoryBox>
         <Box
           display="flex"
           justifyContent="space-between"
           alignItems="center"
-          bgcolor="#ADD8E6"
+          bgcolor="primary.light"
           padding={2}
-          borderBottom="1px solid #333"
+          borderBottom="1px solid"
+          borderColor="divider"
         >
-          <Typography variant="h6" color="#333" width="33%">
+          <Typography variant="h6" color="textPrimary" width="33%">
             Name
           </Typography>
-          <Typography variant="h6" color="#333" width="33%">
+          <Typography variant="h6" color="textPrimary" width="33%">
             Category
           </Typography>
-          <Typography variant="h6" color="#333" width="33%">
+          <Typography variant="h6" color="textPrimary" width="33%">
             Qty.
           </Typography>
         </Box>
-  
+
         <Stack width="800px" height="300px" spacing={2} overflow="auto">
           {filteredInventory.map(({ name, quantity, category }) => (
-            <Box
-              key={name}
-              className="inventory-item"
-              width="100%"
-              minHeight="50px"
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-              bgcolor="#f0f0f0"
-              padding={2}
-              sx={{
-                "&:hover": {
-                  bgcolor: "#e0e0e0",
-                  ".item-buttons": {
-                    display: "flex",
-                  },
-                },
-              }}
-            >
-              <Typography variant="h6" color="#333" width="33%">
+            <InventoryItem key={name}>
+              <Typography variant="h6" color="textPrimary" width="33%">
                 {name.charAt(0).toUpperCase() + name.slice(1)}
               </Typography>
-              <Typography variant="h6" color="#333" width="33%">
+              <Typography variant="h6" color="textPrimary" width="33%">
                 {category}
               </Typography>
-              <Typography variant="h6" color="#333" width="33%">
+              <Typography variant="h6" color="textPrimary" width="33%">
                 {quantity}
               </Typography>
-              <Stack
-                direction="row"
-                spacing={2}
-                className="item-buttons"
-                sx={{ display: "none" }}
-              >
+              <Stack direction="row" spacing={2} className="item-buttons">
                 <Button
                   variant="contained"
+                  color="primary"
                   onClick={() => {
                     removeItem(name);
                   }}
@@ -451,6 +435,7 @@ export default function Home() {
                 </Button>
                 <Button
                   variant="contained"
+                  color="primary"
                   onClick={() => {
                     addItem(name, category);
                   }}
@@ -458,11 +443,11 @@ export default function Home() {
                   +
                 </Button>
               </Stack>
-            </Box>
+            </InventoryItem>
           ))}
         </Stack>
-      </Box>
-  
+      </InventoryBox>
+
       {/* Prompt Dialog */}
       <Dialog open={promptOpen} onClose={handlePromptClose}>
         <DialogTitle>Item Not Found</DialogTitle>
@@ -491,7 +476,7 @@ export default function Home() {
           </Button>
         </DialogActions>
       </Dialog>
-  
+
       {/* Reset Confirmation Dialog */}
       <Dialog open={resetConfirmOpen} onClose={handleResetConfirmClose}>
         <DialogTitle>Reset Inventory</DialogTitle>
@@ -512,5 +497,4 @@ export default function Home() {
       </Dialog>
     </Box>
   );
-  
 }
