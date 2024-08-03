@@ -339,14 +339,14 @@ export default function Home() {
       {/* Manage and Reset Btns */}
       <Stack direction="row" spacing={2}>
         <Button variant="contained" onClick={handleOpen}>
-          Manage Inventory
+          Manage
         </Button>
         <Button
           variant="contained"
           color="error"
           onClick={handleResetConfirmOpen}
         >
-          Reset Inventory
+          Reset
         </Button>
       </Stack>
 
@@ -360,7 +360,7 @@ export default function Home() {
         mb={2}
       >
         <TextField
-          label="Search"
+          label="Filter"
           variant="outlined"
           fullWidth
           value={filterInput}
@@ -376,7 +376,7 @@ export default function Home() {
               onChange={handleFilterByNameChange}
             />
           }
-          label="Filter by Name"
+          label="Name"
         />
         <FormControlLabel
           control={
@@ -385,7 +385,7 @@ export default function Home() {
               onChange={handleFilterByCategoryChange}
             />
           }
-          label="Filter by Category"
+          label="Category"
         />
       </Box>
 
