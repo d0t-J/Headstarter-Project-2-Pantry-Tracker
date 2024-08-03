@@ -14,10 +14,10 @@ import {
   InputLabel,
   FormControl,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
   DialogContentText,
-  DialogActions,
+  DialogTitle,
 } from "@mui/material";
 import {
   collection,
@@ -27,6 +27,7 @@ import {
   query,
   setDoc,
   deleteDoc,
+  writeBatch,
 } from "firebase/firestore";
 
 export default function Home() {
@@ -42,6 +43,10 @@ export default function Home() {
     category: "",
     quantity: 1,
   });
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+  const [filterInput, setFilterInput] = useState("");
+  const [filterType, setFilterType] = useState("name");
+  const [quantityRange, setQuantityRange] = useState([0, 1000]);
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -92,6 +97,20 @@ export default function Home() {
     await updateInventory();
   };
 
+  const resetInventory = async () => {
+    const batch = writeBatch(firestore);
+    const snapshot = query(collection(firestore, "inventory"));
+    const docs = await getDocs(snapshot);
+
+    docs.forEach((doc) => {
+      const docRef = doc.ref;
+      batch.delete(docRef);
+    });
+
+    await batch.commit();
+    await updateInventory();
+  };
+
   useEffect(() => {
     updateInventory();
   }, []);
@@ -115,6 +134,13 @@ export default function Home() {
     handlePromptClose();
   };
 
+  const handleResetConfirmOpen = () => setResetConfirmOpen(true);
+  const handleResetConfirmClose = () => setResetConfirmOpen(false);
+  const handleResetConfirm = async () => {
+    await resetInventory();
+    handleResetConfirmClose();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form submitted. Action:", modalType);
@@ -126,7 +152,8 @@ export default function Home() {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        const { quantity: existingQuantity, category: existingCategory } = docSnap.data();
+        const { quantity: existingQuantity, category: existingCategory } =
+          docSnap.data();
         await setDoc(docRef, {
           category: existingCategory,
           quantity: existingQuantity + itemQuantity,
@@ -147,7 +174,6 @@ export default function Home() {
   };
 
   return (
-    // ! Inventory Box
     <Box
       width="100vw"
       height="100vh"
@@ -270,9 +296,18 @@ export default function Home() {
           </Button>
         </Box>
       </Modal>
-      <Button variant="contained" onClick={handleOpen}>
-        Manage Inventory
-      </Button>
+      <Stack direction="row" spacing={2}>
+        <Button variant="contained" onClick={handleOpen}>
+          Manage Inventory
+        </Button>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={handleResetConfirmOpen}
+        >
+          Reset Inventory
+        </Button>
+      </Stack>
       {/* Inventory List: Items are displayed */}
       <Box border="1px solid #333" borderRadius="15px">
         <Box
@@ -331,28 +366,51 @@ export default function Home() {
           ))}
         </Stack>
       </Box>
-      <Dialog 
-      open={promptOpen}
-      onClose={handlePromptClose}
-      >
+      {/* Prompt Dialog */}
+      <Dialog open={promptOpen} onClose={handlePromptClose}>
         <DialogTitle>Item Not Found</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              The item "{promptItem.name}" was not found in the inventory. Would you like to add it?
-            </DialogContentText>
-            <TextField
-              label="Category"
-              variant="outlined"
-              fullWidth
-              value={promptItem.category}
-              onChange = {(e) => setPromptItem({...promptItem, category: e.target.value})}
-              margin="dense"
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick= {handlePromptClose} color="primary">Cancel</Button>
-            <Button onClick= {handlePromptClose} color="primary">Add Item</Button>
-          </DialogActions>
+        <DialogContent>
+          <DialogContentText>
+            The item "{promptItem.name}" was not found in the inventory. Would
+            you like to add it?
+          </DialogContentText>
+          <TextField
+            label="Category"
+            variant="outlined"
+            fullWidth
+            value={promptItem.category}
+            onChange={(e) =>
+              setPromptItem({ ...promptItem, category: e.target.value })
+            }
+            margin="dense"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handlePromptClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handlePromptConfirm} color="primary">
+            Add Item
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* Reset Confirmation Dialog */}
+      <Dialog open={resetConfirmOpen} onClose={handleResetConfirmClose}>
+        <DialogTitle>Reset Inventory</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to reset the entire inventory? This action
+            cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleResetConfirmClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleResetConfirm} color="primary">
+            Reset
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );
