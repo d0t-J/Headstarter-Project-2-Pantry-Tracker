@@ -1,4 +1,5 @@
-"use client"
+"use client";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { firestore } from "@/firebase";
 import {
@@ -12,13 +13,13 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
+  Checkbox,
+  FormControlLabel,
   Dialog,
-  DialogActions,
+  DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogTitle,
-  FormControlLabel,
-  Checkbox
+  DialogActions,
 } from "@mui/material";
 import {
   collection,
@@ -28,55 +29,76 @@ import {
   query,
   setDoc,
   deleteDoc,
-  writeBatch,
 } from "firebase/firestore";
-import { styled } from "@mui/material/styles";
+import styled from "@emotion/styled";
 
-const InventoryBox = styled(Box)(({ theme }) => ({
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: "10px",
-  boxShadow: theme.shadows[3],
-  width: "800px",
-  margin: theme.spacing(2, 0),
-  padding: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
-}));
+const InventoryBox = styled(Box)`
+  border: 1px solid #333;
+  border-radius: 15px;
+  width: 800px;
+  background-color: #fafafa;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+`;
 
-const InventoryItem = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  backgroundColor: theme.palette.grey[100],
-  padding: theme.spacing(2),
-  margin: theme.spacing(1, 0),
-  borderRadius: "5px",
-  transition: "background-color 0.3s",
-  "&:hover": {
-    backgroundColor: theme.palette.grey[200],
-  },
-  "& .item-buttons": {
-    display: "none",
-  },
-  "&:hover .item-buttons": {
-    display: "flex",
-  },
-}));
+const InventoryItem = styled(Box)`
+  width: 100%;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f0f0f0;
+  padding: 1rem;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+  &:hover {
+    background-color: #e0e0e0;
+    .item-buttons {
+      display: flex;
+    }
+  }
+`;
+
+const InventoryHeader = styled(Box)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #add8e6;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+`;
+
+const ItemButton = styled(Button)`
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+  &:hover {
+    background-color: #ccc;
+  }
+`;
+
+const TruncatedText = styled(Typography)`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
 
 export default function Home() {
   const [inventory, setInventory] = useState([]);
-  const [filteredInventory, setFilteredInventory] = useState([]);
   const [open, setOpen] = useState(false);
   const [itemName, setItemName] = useState("");
   const [itemQuantity, setItemQuantity] = useState(1);
   const [itemCategory, setItemCategory] = useState("");
-  const [modalType, setModalType] = useState("new");
-  const [filterCategory, setFilterCategory] = useState("");
+  const [modalType, setModalType] = useState("");
   const [promptOpen, setPromptOpen] = useState(false);
-  const [promptItem, setPromptItem] = useState({ name: "", category: "", quantity: 1 });
+  const [promptItem, setPromptItem] = useState({ name: "", category: "" });
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const [filterInput, setFilterInput] = useState("");
-  const [filterByName, setFilterByName] = useState(false);
+  const [filterByName, setFilterByName] = useState(true);
   const [filterByCategory, setFilterByCategory] = useState(false);
+  const [filteredInventory, setFilteredInventory] = useState([]);
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -90,30 +112,7 @@ export default function Home() {
       });
     });
     setInventory(inventoryList);
-    filterInventory(filterCategory, inventoryList);
-  };
-
-  const filterInventory = (category, inventoryList) => {
-    let filteredList = inventoryList;
-    if (category) {
-      filteredList = filteredList.filter((item) =>
-        item.category.toLowerCase().includes(category.toLowerCase())
-      );
-    }
-    setFilteredInventory(filteredList);
-  };
-
-  const handleFilterChange = (e) => {
-    setFilterInput(e.target.value);
-    filterInventory(e.target.value, inventory);
-  };
-
-  const handleFilterByNameChange = (e) => {
-    setFilterByName(e.target.checked);
-  };
-
-  const handleFilterByCategoryChange = (e) => {
-    setFilterByCategory(e.target.checked);
+    filterInventory(inventoryList, filterInput, filterByName, filterByCategory);
   };
 
   const removeItem = async (item, quantityToRemove = 1) => {
@@ -121,11 +120,11 @@ export default function Home() {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      const { quantity, category } = docSnap.data();
+      const { quantity } = docSnap.data();
       if (quantity <= quantityToRemove) {
         await deleteDoc(docRef);
       } else {
-        await setDoc(docRef, { category, quantity: quantity - quantityToRemove });
+        await setDoc(docRef, { quantity: quantity - quantityToRemove });
       }
     }
     await updateInventory();
@@ -136,31 +135,13 @@ export default function Home() {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      const { quantity: existingQuantity, category: existingCategory } = docSnap.data();
-      await setDoc(docRef, { category: existingCategory, quantity: existingQuantity + quantity });
+      const { quantity: existingQuantity } = docSnap.data();
+      await setDoc(docRef, { category, quantity: existingQuantity + quantity });
     } else {
       await setDoc(docRef, { category, quantity });
     }
     await updateInventory();
   };
-
-  const resetInventory = async () => {
-    const batch = writeBatch(firestore);
-    const snapshot = query(collection(firestore, "inventory"));
-    const docs = await getDocs(snapshot);
-
-    docs.forEach((doc) => {
-      const docRef = doc.ref;
-      batch.delete(docRef);
-    });
-
-    await batch.commit();
-    await updateInventory();
-  };
-
-  useEffect(() => {
-    updateInventory();
-  }, []);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -168,24 +149,7 @@ export default function Home() {
     setItemName("");
     setItemQuantity(1);
     setItemCategory("");
-    setModalType("new");
-  };
-
-  const handlePromptClose = () => {
-    setPromptOpen(false);
-    setPromptItem({ name: "", category: "", quantity: 1 });
-  };
-
-  const handlePromptConfirm = async () => {
-    await addItem(promptItem.name, promptItem.category, promptItem.quantity);
-    handlePromptClose();
-  };
-
-  const handleResetConfirmOpen = () => setResetConfirmOpen(true);
-  const handleResetConfirmClose = () => setResetConfirmOpen(false);
-  const handleResetConfirm = async () => {
-    await resetInventory();
-    handleResetConfirmClose();
+    setModalType("");
   };
 
   const handleSubmit = async (e) => {
@@ -199,11 +163,9 @@ export default function Home() {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        const { quantity: existingQuantity, category: existingCategory } = docSnap.data();
-        await setDoc(docRef, { category: existingCategory, quantity: existingQuantity + itemQuantity });
-        await updateInventory();
+        await addItem(itemName, itemCategory, itemQuantity);
       } else {
-        setPromptItem({ name: itemName, category: itemCategory, quantity: itemQuantity });
+        setPromptItem({ name: itemName, category: itemCategory });
         setPromptOpen(true);
       }
     } else if (modalType === "delete") {
@@ -211,6 +173,60 @@ export default function Home() {
     }
     handleClose();
   };
+
+  const handlePromptClose = () => setPromptOpen(false);
+  const handlePromptConfirm = async () => {
+    await addItem(promptItem.name, promptItem.category, itemQuantity);
+    setPromptOpen(false);
+  };
+
+  const handleResetConfirmOpen = () => setResetConfirmOpen(true);
+  const handleResetConfirmClose = () => setResetConfirmOpen(false);
+  const handleResetConfirm = async () => {
+    const inventoryCollection = collection(firestore, "inventory");
+    const snapshot = await getDocs(inventoryCollection);
+    const batch = firestore.batch();
+
+    snapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+    await updateInventory();
+    setResetConfirmOpen(false);
+  };
+
+  const handleFilterChange = (e) => {
+    const value = e.target.value;
+    setFilterInput(value);
+    filterInventory(inventory, value, filterByName, filterByCategory);
+  };
+
+  const handleFilterByNameChange = (e) => {
+    setFilterByName(e.target.checked);
+    filterInventory(inventory, filterInput, e.target.checked, filterByCategory);
+  };
+
+  const handleFilterByCategoryChange = (e) => {
+    setFilterByCategory(e.target.checked);
+    filterInventory(inventory, filterInput, filterByName, e.target.checked);
+  };
+
+  const filterInventory = (inventory, input, byName, byCategory) => {
+    const lowercasedInput = input.toLowerCase();
+    const filtered = inventory.filter((item) => {
+      const nameMatch = item.name.toLowerCase().includes(lowercasedInput);
+      const categoryMatch = item.category
+        .toLowerCase()
+        .includes(lowercasedInput);
+      return (byName && nameMatch) || (byCategory && categoryMatch);
+    });
+    setFilteredInventory(filtered);
+  };
+
+  useEffect(() => {
+    updateInventory();
+  }, []);
 
   return (
     <Box
@@ -286,7 +302,6 @@ export default function Home() {
               />
             </>
           )}
-
           {modalType === "update" && (
             <>
               <TextField
@@ -335,18 +350,18 @@ export default function Home() {
           </Button>
         </Box>
       </Modal>
-      
-      {/* Manage and Reset Btns */}
+
+      {/* Manage and Reset Buttons */}
       <Stack direction="row" spacing={2}>
         <Button variant="contained" onClick={handleOpen}>
-          Manage
+          Manage Inventory
         </Button>
         <Button
           variant="contained"
           color="error"
           onClick={handleResetConfirmOpen}
         >
-          Reset
+          Reset Inventory
         </Button>
       </Stack>
 
@@ -360,7 +375,7 @@ export default function Home() {
         mb={2}
       >
         <TextField
-          label="Filter"
+          label="Search"
           variant="outlined"
           fullWidth
           value={filterInput}
@@ -376,7 +391,7 @@ export default function Home() {
               onChange={handleFilterByNameChange}
             />
           }
-          label="Name"
+          label="Filter by Name"
         />
         <FormControlLabel
           control={
@@ -385,63 +400,63 @@ export default function Home() {
               onChange={handleFilterByCategoryChange}
             />
           }
-          label="Category"
+          label="Filter by Category"
         />
       </Box>
 
+      {/* Inventory List Heading */}
+      <Typography variant="h4" mb={2}>
+        Inventory List
+      </Typography>
+
       {/* Inventory List: Items are displayed */}
       <InventoryBox>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          bgcolor="primary.light"
-          padding={2}
-          borderBottom="1px solid"
-          borderColor="divider"
-        >
-          <Typography variant="h6" color="textPrimary" width="33%">
+        <InventoryHeader>
+          <TruncatedText variant="h6" color="#333" width="33%">
             Name
-          </Typography>
-          <Typography variant="h6" color="textPrimary" width="33%">
+          </TruncatedText>
+          <TruncatedText variant="h6" color="#333" width="33%">
             Category
-          </Typography>
-          <Typography variant="h6" color="textPrimary" width="33%">
+          </TruncatedText>
+          <TruncatedText variant="h6" color="#333" width="33%">
             Qty.
-          </Typography>
-        </Box>
+          </TruncatedText>
+        </InventoryHeader>
 
-        <Stack width="800px" height="300px" spacing={2} overflow="auto">
+        <Stack width="100%" height="300px" spacing={2} overflow="auto">
           {filteredInventory.map(({ name, quantity, category }) => (
-            <InventoryItem key={name}>
-              <Typography variant="h6" color="textPrimary" width="33%">
+            <InventoryItem key={name} className="inventory-item">
+              <TruncatedText variant="h6" color="#333" width="33%">
                 {name.charAt(0).toUpperCase() + name.slice(1)}
-              </Typography>
-              <Typography variant="h6" color="textPrimary" width="33%">
+              </TruncatedText>
+              <TruncatedText variant="h6" color="#333" width="33%">
                 {category}
-              </Typography>
-              <Typography variant="h6" color="textPrimary" width="33%">
+              </TruncatedText>
+              <TruncatedText variant="h6" color="#333" width="33%">
                 {quantity}
-              </Typography>
-              <Stack direction="row" spacing={2} className="item-buttons">
-                <Button
+              </TruncatedText>
+              <Stack
+                direction="row"
+                spacing={1}
+                className="item-buttons"
+                sx={{ display: "none" }}
+              >
+                <ItemButton
                   variant="contained"
-                  color="primary"
                   onClick={() => {
                     removeItem(name);
                   }}
                 >
                   -
-                </Button>
-                <Button
+                </ItemButton>
+                <ItemButton
                   variant="contained"
-                  color="primary"
                   onClick={() => {
                     addItem(name, category);
                   }}
                 >
                   +
-                </Button>
+                </ItemButton>
               </Stack>
             </InventoryItem>
           ))}
@@ -453,8 +468,8 @@ export default function Home() {
         <DialogTitle>Item Not Found</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            The item "{promptItem.name}" was not found in the inventory. Would you
-            like to add it?
+            The item "{promptItem.name}" was not found in the inventory. Would
+            you like to add it?
           </DialogContentText>
           <TextField
             label="Category"
