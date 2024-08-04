@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { firestore } from "@/firebase";
+import { ThemeProvider } from "@mui/material/styles";
 import {
   Box,
   Button,
@@ -31,6 +32,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { styled } from "@mui/material/styles";
+import theme from "./theme"; 
 
 // Inventory box styles
 const InventoryBox = styled(Box)(({ theme }) => ({
@@ -270,6 +272,7 @@ export default function Home() {
   };
 
   return (
+    <ThemeProvider theme={theme}>
     <Box
       width="100vw"
       height="100vh"
@@ -554,5 +557,6 @@ export default function Home() {
         </Dialog>
       </Box>
     </Box>
+    </ThemeProvider>
   );
 }
