@@ -35,7 +35,7 @@ import { styled } from "@mui/material/styles";
 const InventoryBox = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: "10px",
-  boxShadow: theme.shadows[5],
+  boxShadow: theme.shadows[3],
   width: "800px",
   margin: theme.spacing(2, 0),
   padding: theme.spacing(2),
@@ -56,17 +56,23 @@ const InventoryItem = styled(Box)(({ theme }) => ({
   },
   "& .item-buttons": {
     display: "none",
+    
   },
   "&:hover .item-buttons": {
     display: "flex",
+    position:"absolute",
+    alignItems: "right"
+  },
+  ".item-buttons": {
+    position: "absolute",
   },
 }));
 
 const CircularButton = styled(Button)(({ theme }) => ({
   borderRadius: "50%",
-  minWidth: "20px",
-  width: "20px",
-  height: "20px",
+  minWidth: "40px",
+  width: "40px",
+  height: "40px",
   padding: "0",
 }));
 
@@ -295,197 +301,128 @@ export default function Home() {
           justifyContent="space-between"
           alignItems="center"
           bgcolor="primary.light"
-          padding={2}
-          borderBottom="1px solid"
-          borderColor="divider"
+          p={2}
         >
-          <Typography variant="h6" color="textPrimary" width="33%">
+          <Typography variant="subtitle1" sx={{ flex: 1, minWidth: '30%' }}>
             Name
           </Typography>
-          <Typography variant="h6" color="textPrimary" width="33%">
+          <Typography variant="subtitle1" sx={{ flex: 1, minWidth: '30%' }}>
             Category
           </Typography>
-          <Typography variant="h6" color="textPrimary" width="33%">
+          <Typography variant="subtitle1" sx={{ flex: 1, minWidth: '10%' }}>
             Qty
           </Typography>
         </Box>
-        {filteredInventory.map((item, index) => (
-          <InventoryItem key={index}>
-            <Typography variant="body1" width="33%">
-              {item.name}
-            </Typography>
-            <Typography variant="body1" width="33%">
-              {item.category}
-            </Typography>
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="flex-end"
-              width="33%"
-            >
-              <Typography variant="body1" mr={2}>
-                {item.quantity}
-              </Typography>
-              <Box className="item-buttons">
-                <CircularButton
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                  onClick={() => addItem(item.name, item.category)}
-                >
-                  +
-                </CircularButton>
-                <CircularButton
-                  variant="contained"
-                  color="secondary"
-                  size="small"
-                  onClick={() => removeItem(item.name)}
-                >
-                  -
-                </CircularButton>
-              </Box>
+
+        {filteredInventory.map((item) => (
+          <InventoryItem key={item.name}>
+            <Typography sx={{ flex: 1, minWidth: '30%' }}>{item.name}</Typography>
+            <Typography sx={{ flex: 1, minWidth: '30%' }}>{item.category}</Typography>
+            <Typography sx={{ flex: 1, minWidth: '10%' }}>{item.quantity}</Typography>
+            <Box className="item-buttons" display="flex" gap={1}>
+              <CircularButton
+                variant="contained"
+                color="primary"
+                onClick={() => addItem(item.name, item.category)}
+              >
+                +
+              </CircularButton>
+              <CircularButton
+                variant="contained"
+                color="secondary"
+                onClick={() => removeItem(item.name)}
+              >
+                -
+              </CircularButton>
             </Box>
           </InventoryItem>
         ))}
       </InventoryBox>
 
-      {/* Manage Modal */}
+      {/* Modal for Managing Items */}
       <Modal open={open} onClose={handleClose}>
         <Box
           component="form"
-          position="absolute"
-          top="50%"
-          left="50%"
-          width={400}
-          bgcolor="white"
-          border="2px solid #000"
-          boxShadow={24}
-          p={4}
-          display="flex"
-          flexDirection="column"
-          gap={3}
-          sx={{
-            transform: "translate(-50%, -50%)",
-          }}
           onSubmit={handleSubmit}
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+          }}
         >
-          <Typography variant="h6">Manage Entries</Typography>
-          <FormControl fullWidth>
-            <InputLabel id="action-label">Action</InputLabel>
-            <Select
-              value={modalType}
-              onChange={(e) => setModalType(e.target.value)}
-              label="Action"
-              labelId="action-label"
-            >
-              <MenuItem value="" disabled>
-                Select an action
-              </MenuItem>
-              <MenuItem value="new">New Item</MenuItem>
-              <MenuItem value="update">Update Existing Item</MenuItem>
-              <MenuItem value="delete">Remove Item</MenuItem>
-            </Select>
-          </FormControl>
-
-          {modalType === "new" && (
-            <>
-              <TextField
-                label="Item Name"
-                variant="outlined"
-                fullWidth
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-              />
-                <TextField
-                  label="Category"
-                  variant="outlined"
-                  fullWidth
-                  value={itemCategory}
-                  onChange={(e) => setItemCategory(e.target.value)}
-                />
-              <TextField
-                label="Quantity"
-                variant="outlined"
-                fullWidth
-                type="number"
-                value={itemQuantity}
-                onChange={(e) => setItemQuantity(Number(e.target.value))}
-              />
-            </>
-          )}
-
-          {modalType === "update" && (
-            <>
-              <TextField
-                label="Item Name"
-                variant="outlined"
-                fullWidth
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-              />
-              <TextField
-                label="Quantity to Add"
-                variant="outlined"
-                fullWidth
-                type="number"
-                value={itemQuantity}
-                onChange={(e) => setItemQuantity(Number(e.target.value))}
-              />
-            </>
-          )}
-
-          {modalType === "delete" && (
-            <>
-              <TextField
-                label="Item Name"
-                variant="outlined"
-                fullWidth
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-              />
-              <TextField
-                label="Quantity to Remove"
-                variant="outlined"
-                fullWidth
-                type="number"
-                value={itemQuantity}
-                onChange={(e) => setItemQuantity(Number(e.target.value))}
-              />
-            </>
-          )}
-          <Button variant="outlined" type="submit">
+          <Typography variant="h6" gutterBottom>
             {modalType === "new"
-              ? "ADD"
+              ? "Add New Item"
               : modalType === "update"
-              ? "UPDATE"
-              : "DELETE"}
-          </Button>
+              ? "Update Item"
+              : "Delete Item"}
+          </Typography>
+          <TextField
+            label="Item Name"
+            value={itemName}
+            onChange={(e) => setItemName(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          {modalType !== "delete" && (
+            <TextField
+              label="Item Category"
+              value={itemCategory}
+              onChange={(e) => setItemCategory(e.target.value)}
+              fullWidth
+              margin="normal"
+              required
+            />
+          )}
+          <TextField
+            label="Item Quantity"
+            type="number"
+            value={itemQuantity}
+            onChange={(e) => setItemQuantity(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+            inputProps={{ min: 1 }}
+          />
+          <Box mt={2} display="flex" justifyContent="space-between">
+            <Button variant="contained" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained" color="primary">
+              {modalType === "new"
+                ? "Add"
+                : modalType === "update"
+                ? "Update"
+                : "Delete"}
+            </Button>
+          </Box>
         </Box>
       </Modal>
 
       {/* Prompt Dialog */}
       <Dialog open={promptOpen} onClose={handlePromptClose}>
-        <DialogTitle>Item not found</DialogTitle>
+        <DialogTitle>Item Not Found</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This item does not exist. Do you want to add it as a new item?
+            The item <strong>{promptItem.name}</strong> does not exist. Would you like to add it with the specified quantity and category?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handlePromptClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handlePromptConfirm} color="primary">
-            Confirm
+          <Button onClick={handlePromptClose}>Cancel</Button>
+          <Button onClick={handlePromptConfirm} color="primary" variant="contained">
+            Add Item
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Reset Confirmation Dialog */}
-      <Dialog
-        open={resetConfirmOpen}
-        onClose={handleResetConfirmClose}
-      >
+      <Dialog open={resetConfirmOpen} onClose={handleResetConfirmClose}>
         <DialogTitle>Reset Inventory</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -493,11 +430,9 @@ export default function Home() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleResetConfirmClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleResetConfirm} color="primary">
-            Confirm
+          <Button onClick={handleResetConfirmClose}>Cancel</Button>
+          <Button onClick={handleResetConfirm} color="error" variant="contained">
+            Reset
           </Button>
         </DialogActions>
       </Dialog>
