@@ -32,7 +32,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { styled } from "@mui/material/styles";
-import theme from "./theme"; 
+import theme from "./theme";
 
 // Inventory box styles
 const InventoryBox = styled(Box)(({ theme }) => ({
@@ -73,7 +73,7 @@ const TruncatedText = styled(Typography)({
   whiteSpace: "nowrap",
   overflow: "hidden",
   textOverflow: "ellipsis",
-  maxWidth:"150px",
+  maxWidth: "150px",
 });
 
 // Circular button styles
@@ -97,7 +97,6 @@ const SliderPage = styled(Box)(({ theme, open }) => ({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-
 }));
 
 export default function Home() {
@@ -119,8 +118,7 @@ export default function Home() {
   const [filterInput, setFilterInput] = useState("");
   const [filterByName, setFilterByName] = useState(false);
   const [filterByCategory, setFilterByCategory] = useState(false);
-2
-
+  2;
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -273,290 +271,280 @@ export default function Home() {
 
   return (
     <ThemeProvider theme={theme}>
-    <Box
-      width="100vw"
-      height="100vh"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-      gap={2}
-    >
-      
       <Box
+        width="100vw"
+        height="100vh"
         display="flex"
         flexDirection="column"
+        justifyContent="center"
         alignItems="center"
+        gap={2}
       >
-        {/* Inventory Title */}
-        <Typography variant="h2" gutterBottom>
-          Inventory Management
-        </Typography>
+        <Box display="flex" flexDirection="column" alignItems="center">
+          {/* Inventory Title */}
+          <Typography variant="h2" gutterBottom>
+            Inventory Management
+          </Typography>
 
-        {/* Manage and Reset Btns */}
-        <Stack direction="row" spacing={2}>
-          <Button variant="contained" onClick={handleOpen}>
-            Manage
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleResetConfirmOpen}
-          >
-            Reset
-          </Button>
-        </Stack>
+          {/* Manage and Reset Btns */}
+          <Stack direction="row" spacing={2}>
+            <Button variant="contained" onClick={handleOpen}>
+              Manage
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleResetConfirmOpen}
+            >
+              Reset
+            </Button>
+          </Stack>
 
-        {/* Filter Box */}
-        <Box
-          width="800px"
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mt={2}
-          mb={2}
-        >
-          <TextField
-            label="Filter"
-            variant="outlined"
-            fullWidth
-            value={filterInput}
-            onChange={handleFilterChange}
-          />
-          <Box display="flex" alignItems="center" ml={2}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={filterByName}
-                  onChange={handleFilterByNameChange}
-                />
-              }
-              label="Name"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={filterByCategory}
-                  onChange={handleFilterByCategoryChange}
-                />
-              }
-              label="Category"
-            />
-          </Box>
-        </Box>
-
-        {/* Inventory List */}
-        <InventoryBox>
+          {/* Filter Box */}
           <Box
+            width="800px"
             display="flex"
             justifyContent="space-between"
             alignItems="center"
-            bgcolor="primary.light"
-            padding={2}
-            borderBottom="1px solid"
-            borderColor="divider"
-            borderRadius="8px"
+            mt={2}
+            mb={2}
           >
-            <Typography
-              variant="h6"
-              width="33%"
-              color="#FFFFFF"
-            >
-              Name
-            </Typography>
-            <Typography
-              variant="h6"
-              width="33%"
-              color="#FFFFFF"
-            >
-              Category
-            </Typography>
-            <Typography
-              variant="h6"
-              width="33%"
-              color="#FFFFFF"
-            >
-              Quantity
-            </Typography>
+            <TextField
+              label="Filter"
+              variant="outlined"
+              fullWidth
+              value={filterInput}
+              onChange={handleFilterChange}
+            />
+            <Box display="flex" alignItems="center" ml={2}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={filterByName}
+                    onChange={handleFilterByNameChange}
+                  />
+                }
+                label="Name"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={filterByCategory}
+                    onChange={handleFilterByCategoryChange}
+                  />
+                }
+                label="Category"
+              />
+            </Box>
           </Box>
-          {filteredInventory.map((item) => (
-            <InventoryItem key={item.name}>
-              <TruncatedText width="33%" variant="body1">{item.name}</TruncatedText>
-              <TruncatedText width="33%" variant="body1">{item.category}</TruncatedText>
-              <Typography width="33%" variant="body1">{item.quantity}</Typography>
-              <Box className="item-buttons">
-                <CircularButton
-                  variant="contained"
-                  color="primary"
-                  onClick={() => addItem(item.name, item.category, 1)}
+
+          {/* Inventory List */}
+          <InventoryBox>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              bgcolor="primary.light"
+              padding={2}
+              borderBottom="1px solid"
+              borderColor="divider"
+              borderRadius="8px"
+            >
+              <Typography variant="h6" width="33%" color="#FFFFFF">
+                Name
+              </Typography>
+              <Typography variant="h6" width="33%" color="#FFFFFF">
+                Category
+              </Typography>
+              <Typography variant="h6" width="33%" color="#FFFFFF">
+                Quantity
+              </Typography>
+            </Box>
+            {filteredInventory.map((item) => (
+              <InventoryItem key={item.name}>
+                <TruncatedText width="33%" variant="body1">
+                  {item.name}
+                </TruncatedText>
+                <TruncatedText width="33%" variant="body1">
+                  {item.category}
+                </TruncatedText>
+                <Typography width="33%" variant="body1">
+                  {item.quantity}
+                </Typography>
+                <Box className="item-buttons">
+                  <CircularButton
+                    variant="contained"
+                    color="primary"
+                    right="5"
+                    onClick={() => addItem(item.name, item.category, 1)}
+                  >
+                    +
+                  </CircularButton>
+                  <CircularButton
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => removeItem(item.name, 1)}
+                  >
+                    -
+                  </CircularButton>
+                </Box>
+              </InventoryItem>
+            ))}
+          </InventoryBox>
+
+          {/* Manage Item Modal */}
+          <Modal open={open} onClose={handleClose}>
+            <Box
+              component="form"
+              position="absolute"
+              top="50%"
+              left="50%"
+              width={400}
+              bgcolor="white"
+              border="2px solid #000"
+              boxShadow={24}
+              p={4}
+              display="flex"
+              flexDirection="column"
+              gap={3}
+              sx={{
+                transform: "translate(-50%, -50%)",
+              }}
+              onSubmit={handleSubmit}
+            >
+              <Typography variant="h6">Manage Entries</Typography>
+              <FormControl fullWidth>
+                <InputLabel id="action-label">Action</InputLabel>
+                <Select
+                  value={modalType}
+                  onChange={(e) => setModalType(e.target.value)}
+                  label="Action"
+                  labelId="action-label"
                 >
-                  +
-                </CircularButton>
-                <CircularButton
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => removeItem(item.name, 1)}
-                >
-                  -
-                </CircularButton>
-              </Box>
-            </InventoryItem>
-          ))}
-        </InventoryBox>
+                  <MenuItem value="" disabled>
+                    Select an action
+                  </MenuItem>
+                  <MenuItem value="new">New Item</MenuItem>
+                  <MenuItem value="update">Update Existing Item</MenuItem>
+                  <MenuItem value="delete">Remove Item</MenuItem>
+                </Select>
+              </FormControl>
 
-        {/* Manage Item Modal */}
-        <Modal open={open} onClose={handleClose}>
-          <Box
-            component="form"
-            position="absolute"
-            top="50%"
-            left="50%"
-            width={400}
-            bgcolor="white"
-            border="2px solid #000"
-            boxShadow={24}
-            p={4}
-            display="flex"
-            flexDirection="column"
-            gap={3}
-            sx={{
-              transform: "translate(-50%, -50%)",
-            }}
-            onSubmit={handleSubmit}
-          >
-            <Typography variant="h6">Manage Entries</Typography>
-            <FormControl fullWidth>
-              <InputLabel id="action-label">Action</InputLabel>
-              <Select
-                value={modalType}
-                onChange={(e) => setModalType(e.target.value)}
-                label="Action"
-                labelId="action-label"
-              >
-                <MenuItem value="" disabled>
-                  Select an action
-                </MenuItem>
-                <MenuItem value="new">New Item</MenuItem>
-                <MenuItem value="update">Update Existing Item</MenuItem>
-                <MenuItem value="delete">Remove Item</MenuItem>
-              </Select>
-            </FormControl>
+              {modalType === "new" && (
+                <>
+                  <TextField
+                    label="Item Name"
+                    variant="outlined"
+                    fullWidth
+                    value={itemName}
+                    onChange={(e) => setItemName(e.target.value)}
+                  />
+                  <TextField
+                    label="Category"
+                    variant="outlined"
+                    fullWidth
+                    value={itemCategory}
+                    onChange={(e) => setItemCategory(e.target.value)}
+                  />
+                  <TextField
+                    label="Quantity"
+                    variant="outlined"
+                    fullWidth
+                    type="number"
+                    value={itemQuantity}
+                    onChange={(e) => setItemQuantity(Number(e.target.value))}
+                  />
+                </>
+              )}
 
-            {modalType === "new" && (
-              <>
-                <TextField
-                  label="Item Name"
-                  variant="outlined"
-                  fullWidth
-                  value={itemName}
-                  onChange={(e) => setItemName(e.target.value)}
-                />
-                <TextField
-                  label="Category"
-                  variant="outlined"
-                  fullWidth
-                  value={itemCategory}
-                  onChange={(e) => setItemCategory(e.target.value)}
-                />
-                <TextField
-                  label="Quantity"
-                  variant="outlined"
-                  fullWidth
-                  type="number"
-                  value={itemQuantity}
-                  onChange={(e) => setItemQuantity(Number(e.target.value))}
-                />
-              </>
-            )}
+              {modalType === "update" && (
+                <>
+                  <TextField
+                    label="Item Name"
+                    variant="outlined"
+                    fullWidth
+                    value={itemName}
+                    onChange={(e) => setItemName(e.target.value)}
+                  />
+                  <TextField
+                    label="Quantity to Add"
+                    variant="outlined"
+                    fullWidth
+                    type="number"
+                    value={itemQuantity}
+                    onChange={(e) => setItemQuantity(Number(e.target.value))}
+                  />
+                </>
+              )}
 
-            {modalType === "update" && (
-              <>
-                <TextField
-                  label="Item Name"
-                  variant="outlined"
-                  fullWidth
-                  value={itemName}
-                  onChange={(e) => setItemName(e.target.value)}
-                />
-                <TextField
-                  label="Quantity to Add"
-                  variant="outlined"
-                  fullWidth
-                  type="number"
-                  value={itemQuantity}
-                  onChange={(e) => setItemQuantity(Number(e.target.value))}
-                />
-              </>
-            )}
+              {modalType === "delete" && (
+                <>
+                  <TextField
+                    label="Item Name"
+                    variant="outlined"
+                    fullWidth
+                    value={itemName}
+                    onChange={(e) => setItemName(e.target.value)}
+                  />
+                  <TextField
+                    label="Quantity to Remove"
+                    variant="outlined"
+                    fullWidth
+                    type="number"
+                    value={itemQuantity}
+                    onChange={(e) => setItemQuantity(Number(e.target.value))}
+                  />
+                </>
+              )}
+              <Button variant="outlined" type="submit">
+                {modalType === "new"
+                  ? "ADD"
+                  : modalType === "update"
+                  ? "UPDATE"
+                  : "DELETE"}
+              </Button>
+            </Box>
+          </Modal>
 
-            {modalType === "delete" && (
-              <>
-                <TextField
-                  label="Item Name"
-                  variant="outlined"
-                  fullWidth
-                  value={itemName}
-                  onChange={(e) => setItemName(e.target.value)}
-                />
-                <TextField
-                  label="Quantity to Remove"
-                  variant="outlined"
-                  fullWidth
-                  type="number"
-                  value={itemQuantity}
-                  onChange={(e) => setItemQuantity(Number(e.target.value))}
-                />
-              </>
-            )}
-            <Button variant="outlined" type="submit">
-              {modalType === "new"
-                ? "ADD"
-                : modalType === "update"
-                ? "UPDATE"
-                : "DELETE"}
-            </Button>
-          </Box>
-        </Modal>
+          {/* Prompt to add new item if not found */}
+          <Dialog open={promptOpen} onClose={handlePromptClose}>
+            <DialogTitle>Item Not Found</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                The item "{promptItem.name}" was not found. Do you want to add
+                it as a new item with the specified quantity?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handlePromptClose} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handlePromptConfirm} color="primary">
+                Add Item
+              </Button>
+            </DialogActions>
+          </Dialog>
 
-        {/* Prompt to add new item if not found */}
-        <Dialog open={promptOpen} onClose={handlePromptClose}>
-          <DialogTitle>Item Not Found</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              The item "{promptItem.name}" was not found. Do you want to add it
-              as a new item with the specified quantity?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handlePromptClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handlePromptConfirm} color="primary">
-              Add Item
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* Confirmation to reset inventory */}
-        <Dialog open={resetConfirmOpen} onClose={handleResetConfirmClose}>
-          <DialogTitle>Reset Inventory</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Are you sure you want to reset the inventory? This action cannot
-              be undone.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleResetConfirmClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleResetConfirm} color="secondary">
-              Reset
-            </Button>
-          </DialogActions>
-        </Dialog>
+          {/* Confirmation to reset inventory */}
+          <Dialog open={resetConfirmOpen} onClose={handleResetConfirmClose}>
+            <DialogTitle>Reset Inventory</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to reset the inventory? This action cannot
+                be undone.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleResetConfirmClose} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleResetConfirm} color="secondary">
+                Reset
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </Box>
       </Box>
-    </Box>
     </ThemeProvider>
   );
 }
