@@ -71,6 +71,7 @@ const TruncatedText = styled(Typography)({
   whiteSpace: "nowrap",
   overflow: "hidden",
   textOverflow: "ellipsis",
+  maxWidth:"150px",
 });
 
 // Circular button styles
@@ -89,11 +90,12 @@ const SliderPage = styled(Box)(({ theme, open }) => ({
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: theme.palette.background.blue,
+  backgroundColor: "#f5e0e0",
   transition: "top 0.5s ease",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+
 }));
 
 export default function Home() {
@@ -115,7 +117,8 @@ export default function Home() {
   const [filterInput, setFilterInput] = useState("");
   const [filterByName, setFilterByName] = useState(false);
   const [filterByCategory, setFilterByCategory] = useState(false);
-  const [sliderOpen, setSliderOpen] = useState(true);
+2
+
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -276,13 +279,9 @@ export default function Home() {
       alignItems="center"
       gap={2}
     >
-      <SliderPage open={sliderOpen}>
-        <Button variant="contained" onClick={() => setSliderOpen(false)}>
-          Open Inventory
-        </Button>
-      </SliderPage>
+      
       <Box
-        display={sliderOpen ? "none" : "flex"}
+        display="flex"
         flexDirection="column"
         alignItems="center"
       >
@@ -374,14 +373,14 @@ export default function Home() {
               width="33%"
               color="#FFFFFF"
             >
-              Qty
+              Quantity
             </Typography>
           </Box>
           {filteredInventory.map((item) => (
             <InventoryItem key={item.name}>
-              <TruncatedText variant="body1">{item.name}</TruncatedText>
-              <TruncatedText variant="body1">{item.category}</TruncatedText>
-              <Typography variant="body1">{item.quantity}</Typography>
+              <TruncatedText width="33%" variant="body1">{item.name}</TruncatedText>
+              <TruncatedText width="33%" variant="body1">{item.category}</TruncatedText>
+              <Typography width="33%" variant="body1">{item.quantity}</Typography>
               <Box className="item-buttons">
                 <CircularButton
                   variant="contained"

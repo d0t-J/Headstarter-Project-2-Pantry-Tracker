@@ -3,3 +3,24 @@
   padding: 0;
   margin: 0;
 }
+
+.slider-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f5e0e0;
+  transition: top 0.5s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slider-page.open {
+  top: -100vh;
+}
+
+.slider-page.closed {
+  top: 0;
+}
