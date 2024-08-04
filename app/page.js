@@ -357,7 +357,6 @@ export default function Home() {
           >
             <Typography
               variant="h6"
-              color="textPrimary"
               width="33%"
               color="#FFFFFF"
             >
@@ -365,7 +364,6 @@ export default function Home() {
             </Typography>
             <Typography
               variant="h6"
-              color="textPrimary"
               width="33%"
               color="#FFFFFF"
             >
@@ -373,7 +371,6 @@ export default function Home() {
             </Typography>
             <Typography
               variant="h6"
-              color="textPrimary"
               width="33%"
               color="#FFFFFF"
             >
