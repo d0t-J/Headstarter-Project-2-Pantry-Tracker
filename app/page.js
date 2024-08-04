@@ -282,7 +282,7 @@ export default function Home() {
       >
         <Box display="flex" flexDirection="column" alignItems="center">
           {/* Inventory Title */}
-          <Typography variant="h3">Inventory Management</Typography>
+          <Typography variant="h3">Inventory</Typography>
 
           {/* Manage and Reset Btns */}
           <Stack direction="row" spacing={2}>
