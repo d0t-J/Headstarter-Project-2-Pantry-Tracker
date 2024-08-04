@@ -209,7 +209,7 @@ export default function Home() {
 
   useEffect(() => {
     updateInventory();
-  }, []);
+  }, [updateInventory]);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -282,9 +282,7 @@ export default function Home() {
       >
         <Box display="flex" flexDirection="column" alignItems="center">
           {/* Inventory Title */}
-          <Typography variant="h2" gutterBottom>
-            Inventory Management
-          </Typography>
+          <Typography variant="h3">Inventory Management</Typography>
 
           {/* Manage and Reset Btns */}
           <Stack direction="row" spacing={2}>
@@ -511,8 +509,8 @@ export default function Home() {
             <DialogTitle>Item Not Found</DialogTitle>
             <DialogContent>
               <DialogContentText>
-                The item "{promptItem.name}" was not found. Do you want to add
-                it as a new item with the specified quantity?
+                The item &quot;{promptItem.name}&quot; was not found. Do you
+                want to add it as a new item with the specified quantity?
               </DialogContentText>
             </DialogContent>
             <DialogActions>
