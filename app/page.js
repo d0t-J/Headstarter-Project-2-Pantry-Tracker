@@ -289,7 +289,7 @@ export default function Home() {
         alignItems="center"
       >
         {/* Inventory Title */}
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h2" gutterBottom>
           Inventory Management
         </Typography>
 
