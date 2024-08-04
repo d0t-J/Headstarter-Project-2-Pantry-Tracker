@@ -135,27 +135,40 @@ export default function Home() {
     filterInventory(filterCategory, inventoryList);
   };
 
-  const filterInventory = (category, inventoryList) => {
+  const filterInventory = (input, inventoryList) => {
     let filteredList = inventoryList;
-    if (category) {
+  
+    if (filterByName) {
       filteredList = filteredList.filter((item) =>
-        item.category.toLowerCase().includes(category.toLowerCase())
+        item.name.toLowerCase().includes(input.toLowerCase())
       );
     }
+  
+    if (filterByCategory) {
+      filteredList = filteredList.filter((item) =>
+        item.category.toLowerCase().includes(input.toLowerCase())
+      );
+    }
+  
     setFilteredInventory(filteredList);
   };
 
   const handleFilterChange = (e) => {
-    setFilterInput(e.target.value);
-    filterInventory(e.target.value, inventory);
+    const value = e.target.value;
+    setFilterInput(value);
+    filterInventory(value, inventory);
   };
 
   const handleFilterByNameChange = (e) => {
-    setFilterByName(e.target.checked);
+    const isChecked = e.target.checked;
+    setFilterByName(isChecked);
+    filterInventory(filterInput, inventory);
   };
 
   const handleFilterByCategoryChange = (e) => {
-    setFilterByCategory(e.target.checked);
+    const isChecked = e.target.checked;
+    setFilterByCategory(isChecked);
+    filterInventory(filterInput, inventory);
   };
 
   const removeItem = async (item, quantityToRemove = 1) => {
@@ -206,10 +219,15 @@ export default function Home() {
     await batch.commit();
     await updateInventory();
   };
-
+  
   useEffect(() => {
     updateInventory();
-  }, [updateInventory]);
+  }, []);
+  
+  useEffect(() => {
+    filterInventory(filterInput, inventory);
+  }, [inventory, filterByName, filterByCategory]);
+  
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
