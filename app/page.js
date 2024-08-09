@@ -1,7 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
 import { firestore } from "@/firebase";
-import { ThemeProvider } from "@mui/material/styles";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  deleteDoc,
+  writeBatch,
+} from "firebase/firestore";
 import {
   Box,
   Button,
@@ -22,82 +31,13 @@ import {
   Checkbox,
 } from "@mui/material";
 import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  setDoc,
-  deleteDoc,
-  writeBatch,
-} from "firebase/firestore";
-import { styled } from "@mui/material/styles";
+  InventoryBox,
+  InventoryItem,
+  TruncatedText,
+  CircularButton,
+} from "./styles";
+import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
-
-// Inventory box styles
-const InventoryBox = styled(Box)(({ theme }) => ({
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: "10px",
-  boxShadow: theme.shadows[3],
-  width: "800px",
-  margin: theme.spacing(2, 0),
-  padding: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
-}));
-
-// Inventory item styles
-const InventoryItem = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  backgroundColor: theme.palette.grey[100],
-  padding: theme.spacing(2),
-  margin: theme.spacing(1, 0),
-  borderRadius: "5px",
-  transition: "background-color 0.3s",
-  position: "relative",
-  "&:hover": {
-    backgroundColor: theme.palette.grey[300],
-  },
-  "& .item-buttons": {
-    display: "none",
-    position: "absolute",
-    right: 10,
-  },
-  "&:hover .item-buttons": {
-    display: "flex",
-  },
-}));
-
-const TruncatedText = styled(Typography)({
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  maxWidth: "150px",
-});
-
-// Circular button styles
-const CircularButton = styled(Button)(({ theme }) => ({
-  borderRadius: "50%",
-  minWidth: "40px",
-  width: "40px",
-  height: "40px",
-  padding: "0",
-}));
-
-// Landing slider page styles
-const SliderPage = styled(Box)(({ theme, open }) => ({
-  position: "absolute",
-  top: open ? 0 : "100vh",
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: "#f5e0e0",
-  transition: "top 0.5s ease",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-}));
 
 export default function Home() {
   const [inventory, setInventory] = useState([]);
@@ -137,19 +77,19 @@ export default function Home() {
 
   const filterInventory = (input, inventoryList) => {
     let filteredList = inventoryList;
-  
+
     if (filterByName) {
       filteredList = filteredList.filter((item) =>
         item.name.toLowerCase().includes(input.toLowerCase())
       );
     }
-  
+
     if (filterByCategory) {
       filteredList = filteredList.filter((item) =>
         item.category.toLowerCase().includes(input.toLowerCase())
       );
     }
-  
+
     setFilteredInventory(filteredList);
   };
 
@@ -219,15 +159,14 @@ export default function Home() {
     await batch.commit();
     await updateInventory();
   };
-  
+
   useEffect(() => {
     updateInventory();
   }, []);
-  
+
   useEffect(() => {
     filterInventory(filterInput, inventory);
   }, [inventory, filterByName, filterByCategory]);
-  
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -296,6 +235,7 @@ export default function Home() {
         flexDirection="column"
         justifyContent="center"
         alignItems="center"
+        // border="10px solid black"
         gap={2}
       >
         <Box display="flex" flexDirection="column" alignItems="center">
